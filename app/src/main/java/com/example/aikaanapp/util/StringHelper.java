@@ -1,0 +1,159 @@
+package com.example.aikaanapp.util;
+
+import android.app.ActivityManager;
+import android.content.Context;
+import android.util.SparseArray;
+import android.app.ActivityManager.RunningAppProcessInfo;
+
+import com.example.aikaanapp.Config;
+import com.example.aikaanapp.R;
+
+import java.text.NumberFormat;
+
+/**
+ * StringHelper.
+ */
+public class StringHelper {
+    // Used to map importances to human readable strings for sending samples to
+    // the server, and showing them in the process list.
+    private static final SparseArray<String> importanceToString;
+
+    static {
+        importanceToString = new SparseArray<>();
+        // for API >=  26, both IMPORTANCE_EMPTY and IMPORTANCE_BACKGROUND
+        // will mean the same thing, and the constant name is IMPORTANCE_CACHED
+        importanceToString.put(RunningAppProcessInfo.IMPORTANCE_CACHED, "Not running");
+        importanceToString.put(RunningAppProcessInfo.IMPORTANCE_EMPTY, "Not running");
+        importanceToString.put(RunningAppProcessInfo.IMPORTANCE_BACKGROUND, "Background process");
+        importanceToString.put(RunningAppProcessInfo.IMPORTANCE_SERVICE, "Service");
+        importanceToString.put(RunningAppProcessInfo.IMPORTANCE_VISIBLE, "Visible task");
+        importanceToString.put(RunningAppProcessInfo.IMPORTANCE_FOREGROUND, "Foreground app");
+        importanceToString.put(Config.IMPORTANCE_APP , "App");
+    }
+
+    /**
+     * Converts <code>importance</code> to a human readable string.
+     *
+     * @param importance the importance from Android process info.
+     * @return a human readable String describing the importance.
+     */
+    public static String importanceString(int importance) {
+        String s = importanceToString.get(importance);
+        if (s == null || s.length() == 0) {
+            LogUtils.logE("Importance not found: ", "" + importance);
+            s = "Unknown";
+        }
+        return s;
+    }
+
+    public static String importanceStringLegacy(String description) {
+        String importance;
+        switch (description) {
+            case "system" :
+                importance = importanceString(RunningAppProcessInfo.IMPORTANCE_BACKGROUND);
+                break;
+            case "user" :
+                importance = importanceString(Config.IMPORTANCE_APP);
+                break;
+            case "user-service" :
+                importance = importanceString(RunningAppProcessInfo.IMPORTANCE_SERVICE);
+                break;
+            default :
+                importance = "Unknown";
+                break;
+        }
+
+        return importance;
+    }
+
+    public static String translatedPriority(final Context context, String importanceString) {
+        if (importanceString == null) {
+            return context.getString(R.string.priorityDefault);
+        }
+
+        switch (importanceString) {
+            case "Not running":
+                return context.getString(R.string.prioritynotrunning);
+            case "Background process":
+                return context.getString(R.string.prioritybackground);
+            case "Service":
+                return context.getString(R.string.priorityservice);
+            case "Visible task":
+                return context.getString(R.string.priorityvisible);
+            case "Foreground app":
+                return context.getString(R.string.priorityforeground);
+            case "Perceptible task":
+                return context.getString(R.string.priorityperceptible);
+            case "Suggestion":
+                return context.getString(R.string.prioritysuggestion);
+            default:
+                return context.getString(R.string.priorityDefault);
+        }
+    }
+
+    public static String formatProcessName(String processName) {
+        // TODO: Is this the right thing to do? Remove part after ":" in process names
+        int indexOf = processName.lastIndexOf(':');
+        if (indexOf <= 0) indexOf = processName.length();
+        return processName.substring(0, indexOf);
+    }
+
+    public static String formatPercentageNumber(float number) {
+        NumberFormat defaultFormat = NumberFormat.getPercentInstance();
+        defaultFormat.setMinimumFractionDigits(0);
+        return defaultFormat.format(number);
+    }
+
+    public static String formatNumber(float number) {
+        NumberFormat defaultFormat = NumberFormat.getNumberInstance();
+        defaultFormat.setMinimumFractionDigits(1);
+        return defaultFormat.format(number);
+    }
+
+    public static String formatNumber(double number) {
+        NumberFormat defaultFormat = NumberFormat.getNumberInstance();
+        defaultFormat.setMaximumFractionDigits(2);
+        return defaultFormat.format(number);
+    }
+
+    public static String[] trimArray(String[] array) {
+        for (int i = 0; i < array.length; i++) {
+            array[i] = array[i].trim();
+        }
+        return array;
+    }
+
+    public static String convertToHex(byte[] data) {
+        StringBuilder builder = new StringBuilder();
+        for (byte b : data) {
+            int halfByte = (b >>> 4) & 0x0F;
+            int twoHalfs = 0;
+            do {
+                builder.append(
+                        (0 <= halfByte) && (halfByte <= 9) ?
+                                (char) ('0' + halfByte) : (char) ('a' + (halfByte - 10))
+                );
+                halfByte = b & 0x0F;
+            }
+            while (twoHalfs++ < 1);
+        }
+        return builder.toString();
+    }
+
+    public static String convertToString(Object obj) {
+        if (obj instanceof List<?>) {
+            String s = String.valueOf(obj);
+            // remove '[' and ']' chars from List.toString()
+            return s.substring(1, s.length() - 1);
+        }
+        return String.valueOf(obj);
+    }
+
+    public static String truncate(String str, int len) {
+        if (str.length() > len) {
+            return str.substring(0, len) + "...";
+        } else {
+            return str;
+        }
+    }
+}

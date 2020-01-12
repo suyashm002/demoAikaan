@@ -1,0 +1,109 @@
+apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+
+
+// Check if can build a release config
+def canBuildRelease = rootProject.file('keystore.properties').exists()
+
+// Initialize a new Properties() object called keystoreProperties.
+def keystoreProperties = new Properties()
+
+// Load keystore file for release build config
+if (canBuildRelease) {
+    // Load your keystore.properties file into the keystoreProperties object.
+    keystoreProperties.load(new FileInputStream(rootProject.file('keystore.properties')))
+}
+
+android {
+    compileSdkVersion project.compileSdkVersion.toInteger()
+    signingConfigs {
+        debug {
+            // Explicit debug key for Travis CI automation
+            keyAlias 'AikaanDebugKey'
+            keyPassword 'aikaan_debug'
+            storeFile file('aikaan-debug.jks')
+            storePassword 'aikaan_debug'
+        }
+        if (canBuildRelease) {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+    defaultConfig {
+        applicationId "com.example.aikaanapp"
+        minSdkVersion project.minSdkVersion.toInteger()
+        targetSdkVersion project.targetSdkVersion.toInteger()
+        versionCode project.versionCode.toInteger()
+        versionName project.versionName
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        signingConfig signingConfigs.debug
+    }
+    buildTypes {
+        debug {
+            applicationIdSuffix '.debug'
+            debuggable true
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+
+        if (canBuildRelease) {
+            release {
+                debuggable false
+                minifyEnabled true
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                signingConfig signingConfigs.release
+                zipAlignEnabled true
+                shrinkResources true
+            }
+        }
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+
+    // Include libraries checked into the libs directory.
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    // Dependencies for android tests which reside in the "androidTest" src folder.
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    androidTestImplementation 'com.google.code.findbugs:jsr305:3.0.2'
+    // Dependencies for unit tests which reside in the "tests" src folder.
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:1.10.19'
+    // Android support libraries.
+    implementation "com.android.support:appcompat-v7:${androidSupportLibVersion}"
+    implementation "com.android.support:design:${androidSupportLibVersion}"
+    implementation "com.android.support:support-v4:${androidSupportLibVersion}"
+    implementation "com.android.support:support-v13:${androidSupportLibVersion}"
+    implementation "com.android.support:cardview-v7:${androidSupportLibVersion}"
+    implementation "com.android.support:recyclerview-v7:${androidSupportLibVersion}"
+    // JSON utility library.
+    implementation 'com.google.code.gson:gson:2.8.5'
+    // Retrofit library for networking operations
+    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    // greenrobot for event communications
+    implementation 'org.greenrobot:eventbus:3.0.0'
+    // MPAndroidChart library for drawing charts
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    // Android Processes library
+    implementation 'com.jaredrummler:android-processes:1.0.9'
+    // crashlytics
+}
