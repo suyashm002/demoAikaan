@@ -1,5 +1,7 @@
 package com.example.aikaanapp.events;
 
+import com.example.aikaanapp.models.ui.Task;
+
 public class TaskRemovedEvent {
 
     public final int position;

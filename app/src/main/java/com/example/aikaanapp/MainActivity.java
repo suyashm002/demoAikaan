@@ -1,14 +1,329 @@
 package com.example.aikaanapp;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 
-public class MainActivity extends AppCompatActivity {
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
+
+import com.example.aikaanapp.adapters.TabAdapter;
+import com.example.aikaanapp.events.RefreshChartEvent;
+import com.example.aikaanapp.events.StatusEvent;
+import com.example.aikaanapp.layouts.MainTabLayout;
+import com.example.aikaanapp.managers.sampling.DataEstimator;
+import com.example.aikaanapp.managers.storage.AikaanDb;
+import com.example.aikaanapp.models.Battery;
+import com.example.aikaanapp.models.Sensors;
+import com.example.aikaanapp.network.CommunicationManager;
+import com.example.aikaanapp.util.LogUtils;
+import com.example.aikaanapp.util.NetworkWatcher;
+import com.example.aikaanapp.util.SettingsUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
+
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.List;
+
+import static com.example.aikaanapp.util.LogUtils.makeLogTag;
+
+public class MainActivity extends BaseActivity implements
+        ActivityCompat.OnRequestPermissionsResultCallback, SensorEventListener {
+    private static final String TAG = makeLogTag(MainActivity.class);
+
+        private AikaanApplication mApp;
+
+        private ViewPager mViewPager;
+
+        public AikaanDb mDatabase;
+
+        private SensorManager mSensorManager;
+
+        private List<Sensor> mSensorList;
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            setContentView(R.layout.activity_main);
+
+            LogUtils.logI(TAG, "onCreate() called");
+
+            loadComponents();
+
+            Intent intentFromNotifier = getIntent();
+
+            if (intentFromNotifier != null) {
+                int tab = intentFromNotifier.getIntExtra("tab", -1);
+                if (tab != -1) {
+                    mViewPager.setCurrentItem(tab);
+                }
+            }
+            mSensorManager = (SensorManager) getBaseContext().getSystemService(Context.SENSOR_SERVICE);
+            mSensorList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+        }
+
+        @Override
+        protected void onStart() {
+            super.onStart();
+            mDatabase.getDefaultInstance();
+            for (Sensor sensor: mSensorList) {
+                mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+            }
+        }
+
+        @Override
+        protected void onStop() {
+            mSensorManager.unregisterListener(this);
+            mDatabase.close();
+            super.onStop();
+        }
+
+        @Override
+        public final void onSensorChanged(SensorEvent event) {
+            Sensors.onSensorChanged(event);
+        }
+
+        @Override
+        public final void onAccuracyChanged(Sensor sensor, int accuracy) {
+            // Do something here if sensor accuracy changes.
+        }
+      /*  @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            super.onCreateOptionsMenu(menu);
+
+            // Add the search button to the toolbar.
+            Toolbar toolbar = getActionBarToolbar();
+            toolbar.inflateMenu(R.menu.menu_main);
+            toolbar.setOnMenuItemClickListener(this);
+            return true;
+        }
+*/
+       /* @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_inbox:
+                  //  startActivity(new Intent(this, InboxActivity.class));
+                    return true;
+                case R.id.action_summary:
+                    try {
+                        Intent powerSummary = new Intent(Intent.ACTION_POWER_USAGE_SUMMARY);
+                        ResolveInfo resolveInfo = getPackageManager().resolveActivity(powerSummary, 0);
+                        if (resolveInfo != null) {
+                            startActivity(powerSummary);
+                        }
+                        // TODO: else show dialog
+                    } catch (ActivityNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    return true;
+                case R.id.action_settings:
+
+                    startActivity(new Intent(this, SettingsActivity.class));
+                    return true;
+
+            }
+
+            return false;
+        }
+*/
+        @Override
+        public void onRequestPermissionsResult(int requestCode,
+                                               @NonNull String[] permissions,
+                                               @NonNull int[] grantResults) {
+            switch (requestCode) {
+                case Config.PERMISSION_READ_PHONE_STATE: {
+                    // If request is cancelled, the result arrays are empty.
+                    setupPermission(Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Config.PERMISSION_ACCESS_COARSE_LOCATION);
+                    break;
+                }
+                case Config.PERMISSION_ACCESS_COARSE_LOCATION: {
+                    setupPermission(Manifest.permission.ACCESS_FINE_LOCATION,
+                            Config.PERMISSION_ACCESS_FINE_LOCATION);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        public DataEstimator getEstimator() {
+            return mApp.getEstimator();
+        }
+
+        private void loadComponents() {
+            final Context context = getApplicationContext();
+
+            mDatabase = new AikaanDb();
+            mApp = (AikaanApplication) getApplication();
+
+            // Check if Service needs to start, in case it is coming from WelcomeActivity
+            if (SettingsUtils.isTosAccepted(context)) {
+                mApp.startAikaanService();
+
+                // if there is Internet connection run tasks
+                if (NetworkWatcher.hasInternet(context, NetworkWatcher.BACKGROUND_TASKS)) {
+                    // Fetch web server status and update them
+                  //  new ServerStatusTask().execute(context);
+
+                    if (SettingsUtils.isDeviceRegistered(context)) {
+                  //      new CheckNewMessagesTask().execute(context);
+                    }
+                }
+            }
+
+            // Load app views
+            loadViews();
+        }
+
+        private void loadViews() {
+            mViewPager = findViewById(R.id.viewpager);
+            mViewPager.setOffscreenPageLimit(TabAdapter.NUM_TABS - 1);
+
+            final TabAdapter tabAdapter = new TabAdapter(getSupportFragmentManager());
+            mViewPager.setAdapter(tabAdapter);
+
+            MainTabLayout tabLayout = findViewById(R.id.tab_layout);
+            tabLayout.createTabs();
+
+            final FloatingActionButton fab = findViewById(R.id.fabSendSample);
+            if (fab == null) return;
+
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Context context = getApplicationContext();
+
+                    LogUtils.logI(TAG, String.valueOf(Battery.getBatteryAveragePower(context)));
+                    LogUtils.logI(TAG, String.valueOf(Battery.getBatteryChargeCounter(context)));
+                    LogUtils.logI(TAG, String.valueOf(Battery.getBatteryEnergyCounter(context)));
+
+                    // Check Internet connectivity
+                    if (!NetworkWatcher.hasInternet(context, NetworkWatcher.COMMUNICATION_MANAGER)) {
+                        Snackbar.make(
+                                view,
+                                getString(R.string.event_no_connectivity),
+                                Snackbar.LENGTH_LONG
+                        ).show();
+                        CommunicationManager.isQueued = true;
+                        return;
+                    }
+
+                    // Check if server url is stored in preferences and device is registered
+                    if (!SettingsUtils.isServerUrlPresent(context) ||
+                            !SettingsUtils.isDeviceRegistered(context)) {
+                        // Fetch web server status and update them
+                      //  new ServerStatusTask().execute(context);
+                        EventBus.getDefault().post(
+                                new StatusEvent(getString(R.string.event_needs_sync))
+                        );
+                        refreshStatus();
+                        return;
+                    }
+
+                    // Upload samples
+                    CommunicationManager manager = new CommunicationManager(
+                            context,
+                            false
+                    );
+
+                    // Check if is already uploading
+                    if (!CommunicationManager.isUploading) {
+                        manager.sendSamples();
+                    } else {
+                        EventBus.getDefault().post(
+                                new StatusEvent(getString(R.string.event_upload_running))
+                        );
+                        refreshStatus();
+                    }
+                }
+            });
+
+            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    mViewPager.setCurrentItem(tab.getPosition());
+                    getActionBarToolbar().setTitle(tab.getContentDescription());
+
+                    if (tab.getPosition() == TabAdapter.TAB_HOME) {
+                        fab.show();
+                    } else {
+                        fab.hide();
+                    }
+
+                    if (tab.getPosition() == TabAdapter.TAB_CHARTS) {
+                        EventBus.getDefault().post(new RefreshChartEvent());
+                    }
+
+
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+                    //  nop
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+                    //scroll the active fragment's contents to the top when user taps the current tab
+                }
+            });
+
+            mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+            // If device has Android version < 6.0 don't request permissions
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
+
+            /*
+             * Ask for necessary permissions on run-time
+             * Permissions with a protection level above Normal need to be requested
+             */
+            setupPermission(Manifest.permission.READ_PHONE_STATE, Config.PERMISSION_READ_PHONE_STATE);
+        }
+
+        private void refreshStatus() {
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    EventBus.getDefault().post(new StatusEvent(getString(R.string.event_idle)));
+                }
+            }, Config.REFRESH_STATUS_ERROR);
+        }
+
+        private void setupPermission(String permission, int code) {
+            if (ContextCompat.checkSelfPermission(this, permission) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{permission},
+                        code);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
 }

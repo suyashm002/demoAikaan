@@ -12,6 +12,9 @@ import android.os.Build;
 import com.example.aikaanapp.Config;
 import com.example.aikaanapp.MainActivity;
 import com.example.aikaanapp.R;
+import com.example.aikaanapp.managers.sampling.DataEstimator;
+import com.example.aikaanapp.managers.sampling.Inspector;
+import com.example.aikaanapp.models.Battery;
 
 import androidx.core.app.NotificationCompat;
 
@@ -38,7 +41,7 @@ public class Notifier {
         double now = Battery.getBatteryCurrentNow(context);
         int level = estimator.getLevel();
         String title = context.getString(R.string.now) + ": " + now + " mA";
-        String text = context.getString(R.string.notif_batteryhub_running);
+        String text = context.getString(R.string.notif_aikaan_running);
 
         sBuilder = new NotificationCompat.Builder(context, "start_status")
                 .setContentTitle(title)
@@ -51,11 +54,7 @@ public class Notifier {
             sBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
         }
 
-        if (level < 100) {
-            sBuilder.setSmallIcon(R.drawable.ic_stat_00_pct_charged + level);
-        } else {
-            sBuilder.setSmallIcon(R.drawable.ic_stat_z100_pct_charged);
-        }
+
 
         // Creates an explicit intent for an Activity in your app
         Intent resultIntent = new Intent(context, MainActivity.class);
@@ -92,7 +91,7 @@ public class Notifier {
         double now = Battery.getBatteryCurrentNow(context);
         int level = (int) (Inspector.getCurrentBatteryLevel() * 100);
         String title = context.getString(R.string.now) + ": " + now + " mA";
-        String text = context.getString(R.string.notif_batteryhub_running);
+        String text = context.getString(R.string.notif_aikaan_running);
 
         sBuilder.setContentTitle(title)
                 .setContentText(text)
@@ -104,11 +103,7 @@ public class Notifier {
             sBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
         }
 
-        if (level < 100) {
-            sBuilder.setSmallIcon(R.drawable.ic_stat_00_pct_charged + level);
-        } else {
-            sBuilder.setSmallIcon(R.drawable.ic_stat_z100_pct_charged);
-        }
+
 
         LogUtils.logI(TAG, "Updating value of notification");
 
@@ -121,50 +116,6 @@ public class Notifier {
         isStatusBarShown = false;
     }
 
-    public static void newMessageAlert(final Context context) {
-        if (sNotificationManager == null) {
-            sNotificationManager =
-                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        }
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, "new_message")
-                .setSmallIcon(R.drawable.ic_email_white_24dp)
-                .setContentTitle(context.getString(R.string.notif_new_message))
-                .setContentText(context.getString(R.string.notif_open_inbox))
-                .setAutoCancel(true)
-                .setOngoing(false)
-                .setLights(Color.GREEN, 500, 2000)
-                .setVibrate(new long[]{0, 800, 1500})
-                .setPriority(SettingsUtils.fetchNotificationsPriority(context));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
-        }
-
-        // Creates an explicit intent for an Activity in your app
-        Intent resultIntent = new Intent(context, InboxActivity.class);
-
-        // The stack builder object will contain an artificial back stack for the
-        // started Activity.
-        // This ensures that navigating backward from the Activity leads out of
-        // your application to the Home screen.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(InboxActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
-
-        // Because the ID remains unchanged, the existing notification is updated.
-        Notification notification = mBuilder.build();
-        notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
-        sNotificationManager.notify(Config.NOTIFICATION_MESSAGE_NEW, notification);
-    }
 
     public static void batteryFullAlert(final Context context) {
         if (sNotificationManager == null) {
@@ -174,7 +125,7 @@ public class Notifier {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, "battery_full")
-                        .setSmallIcon(R.drawable.ic_information_white_24dp)
+                        .setSmallIcon(R.drawable.ic_launcher_background)
                         .setContentTitle(context.getString(R.string.notif_battery_full))
                         .setContentText(context.getString(R.string.notif_remove_charger))
                         .setAutoCancel(true)
@@ -196,7 +147,7 @@ public class Notifier {
         // your application to the Home screen.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(InboxActivity.class);
+        //stackBuilder.addParentStack(InboxActivity.class);
         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
@@ -218,7 +169,7 @@ public class Notifier {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, "battery_low")
-                        .setSmallIcon(R.drawable.ic_alert_circle_white_24dp)
+                        .setSmallIcon(R.drawable.ic_launcher_background)
                         .setContentTitle(context.getString(R.string.notif_battery_low))
                         .setContentText(context.getString(R.string.notif_connect_power))
                         .setAutoCancel(true)
@@ -240,8 +191,7 @@ public class Notifier {
         // your application to the Home screen.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(InboxActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
+         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(
@@ -262,7 +212,7 @@ public class Notifier {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, "battery_warning")
-                        .setSmallIcon(R.drawable.ic_alert_circle_white_24dp)
+                        .setSmallIcon(R.drawable.ic_launcher_background)
                         .setContentTitle(context.getString(R.string.notif_battery_warning))
                         .setContentText(context.getString(R.string.notif_battery_warm))
                         .setAutoCancel(true)
@@ -285,8 +235,7 @@ public class Notifier {
         // your application to the Home screen.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(InboxActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
+         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(
@@ -309,7 +258,7 @@ public class Notifier {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, "battery_high")
-                        .setSmallIcon(R.drawable.ic_alert_circle_white_24dp)
+                        .setSmallIcon(R.drawable.ic_launcher_background)
                         .setContentTitle(context.getString(R.string.notif_battery_hot))
                         .setContentText(context.getString(R.string.notif_battery_cooldown))
                         .setAutoCancel(true)
@@ -332,8 +281,7 @@ public class Notifier {
         // your application to the Home screen.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(InboxActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
+         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(
@@ -364,9 +312,9 @@ public class Notifier {
         }
 
         if (!charging) {
-            sBuilder.setSmallIcon(R.drawable.ic_battery_50_grey600_24dp);
+            sBuilder.setSmallIcon(R.drawable.ic_launcher_background);
         } else {
-            sBuilder.setSmallIcon(R.drawable.ic_battery_50_white_24dp);
+            sBuilder.setSmallIcon(R.drawable.ic_launcher_background);
         }
 
         // Creates an explicit intent for an Activity in your app

@@ -7,6 +7,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 
 import com.example.aikaanapp.Config;
+import com.example.aikaanapp.managers.storage.AikaanDb;
 import com.example.aikaanapp.models.data.BatteryUsage;
 import com.example.aikaanapp.util.LogUtils;
 
@@ -340,7 +341,7 @@ public class Battery {
             remainingCapacity = fullCapacity - getBatteryRemainingCapacity(context);
         }
 
-        GreenHubDb database = new GreenHubDb();
+        AikaanDb database = new AikaanDb();
 
         RealmResults<BatteryUsage> allUsages = database.getUsages();
         int limit = Math.min(Config.BATTERY_CAPACITY_SAMPLES_SIZE, allUsages.size());

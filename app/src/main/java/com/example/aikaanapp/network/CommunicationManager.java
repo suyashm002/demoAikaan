@@ -7,6 +7,17 @@ import com.example.aikaanapp.BuildConfig;
 import com.example.aikaanapp.Config;
 import com.example.aikaanapp.R;
 import com.example.aikaanapp.events.StatusEvent;
+import com.example.aikaanapp.managers.storage.AikaanDb;
+import com.example.aikaanapp.models.data.AppPermission;
+import com.example.aikaanapp.models.data.AppSignature;
+import com.example.aikaanapp.models.data.Feature;
+import com.example.aikaanapp.models.data.LocationProvider;
+import com.example.aikaanapp.models.data.ProcessInfo;
+import com.example.aikaanapp.models.data.Sample;
+import com.example.aikaanapp.models.data.SensorDetails;
+import com.example.aikaanapp.models.data.Upload;
+import com.example.aikaanapp.network.services.AikaanAPIService;
+import com.example.aikaanapp.tasks.DeleteSampleTask;
 import com.example.aikaanapp.util.LogUtils;
 import com.example.aikaanapp.util.NetworkWatcher;
 import com.example.aikaanapp.util.SettingsUtils;
@@ -43,7 +54,7 @@ public class CommunicationManager {
 
     private Context mContext;
 
-    private GreenHubAPIService mService;
+    private AikaanAPIService mService;
 
     private Iterator<Integer> mCollection;
 
@@ -62,7 +73,7 @@ public class CommunicationManager {
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        mService = retrofit.create(GreenHubAPIService.class);
+        mService = retrofit.create(AikaanAPIService.class);
     }
 
     public void sendSamples() {
@@ -81,7 +92,7 @@ public class CommunicationManager {
             return;
         }
 
-        GreenHubDb database = new GreenHubDb();
+        AikaanDb database = new AikaanDb();
         long count = database.count(Sample.class);
         mCollection = database.allSamplesIds();
         database.close();

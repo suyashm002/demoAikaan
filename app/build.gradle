@@ -11,7 +11,7 @@ def keystoreProperties = new Properties()
 // Load keystore file for release build config
 if (canBuildRelease) {
     // Load your keystore.properties file into the keystoreProperties object.
-    keystoreProperties.load(new FileInputStream(rootProject.file('keystore.properties')))
+    //keystoreProperties.load(new FileInputStream(rootProject.file('keystore.properties')))
 }
 
 android {
@@ -19,17 +19,17 @@ android {
     signingConfigs {
         debug {
             // Explicit debug key for Travis CI automation
-            keyAlias 'AikaanDebugKey'
-            keyPassword 'aikaan_debug'
-            storeFile file('aikaan-debug.jks')
-            storePassword 'aikaan_debug'
+          //  keyAlias 'AikaanDebugKey'
+        //    keyPassword 'aikaan_debug'
+           // storeFile file('aikaan-debug.jks')
+        //    storePassword 'aikaan_debug'
         }
         if (canBuildRelease) {
             release {
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
+             //   keyAlias keystoreProperties['keyAlias']
+                //keyPassword keystoreProperties['keyPassword']
+               // storeFile file(keystoreProperties['storeFile'])
+               // storePassword keystoreProperties['storePassword']
             }
         }
     }

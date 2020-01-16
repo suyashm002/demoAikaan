@@ -3,13 +3,20 @@ package com.example.aikaanapp.models;
 import android.content.Context;
 import android.app.ActivityManager.RunningAppProcessInfo;
 
+import com.example.aikaanapp.models.data.ProcessInfo;
 import com.example.aikaanapp.util.ProcessUtils;
 import com.example.aikaanapp.util.StringHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.example.aikaanapp.util.LogUtils.logE;
+import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.ActivityManager.RunningServiceInfo;
+import android.content.Context;
 
 public class Application {
     public static ArrayList<ProcessInfo> getRunningAppInfoLegacy(final Context context) {
