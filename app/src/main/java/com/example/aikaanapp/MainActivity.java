@@ -109,17 +109,7 @@ public class MainActivity extends BaseActivity implements
         public final void onAccuracyChanged(Sensor sensor, int accuracy) {
             // Do something here if sensor accuracy changes.
         }
-      /*  @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
-            super.onCreateOptionsMenu(menu);
 
-            // Add the search button to the toolbar.
-            Toolbar toolbar = getActionBarToolbar();
-            toolbar.inflateMenu(R.menu.menu_main);
-            toolbar.setOnMenuItemClickListener(this);
-            return true;
-        }
-*/
        /* @Override
         public boolean onMenuItemClick(MenuItem item) {
             switch (item.getItemId()) {
@@ -162,6 +152,11 @@ public class MainActivity extends BaseActivity implements
                 case Config.PERMISSION_ACCESS_COARSE_LOCATION: {
                     setupPermission(Manifest.permission.ACCESS_FINE_LOCATION,
                             Config.PERMISSION_ACCESS_FINE_LOCATION);
+                    break;
+                }
+                case Config.PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE : {
+                    setupPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Config.PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE);
                     break;
                 }
                 default:

@@ -5,6 +5,7 @@ import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.SystemClock;
 
 import com.example.aikaanapp.managers.sampling.BatteryService;
@@ -17,6 +18,7 @@ import com.example.aikaanapp.util.SettingsUtils;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -43,6 +45,8 @@ public class AikaanApplication extends Application {
             LogUtils.LOGGING_ENABLED = true;
         }
 
+        createLogFile();
+
         logI(TAG, "onCreate() called");
 
 
@@ -60,23 +64,10 @@ public class AikaanApplication extends Application {
 
 
         Context context = getApplicationContext();
-        try {
-            aikaanADBagent();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            aikaanADBagent2();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            aikaanADBagent3();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         if (SettingsUtils.isTosAccepted(context)) {
             // TODO call ADB commands
+
           /*  aikaanADBagent();
             aikaanADBagent2();
             aikaanADBagent3();*/
@@ -93,7 +84,110 @@ public class AikaanApplication extends Application {
                // startStatusBarUpdater();
             }
         }
+        try {
+            aikaanADBagent();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            aikaanADBagent2();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            aikaanADBagent3();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    private void createLogFile() {
+        if ( isExternalStorageWritable() ) {
+
+
+
+            File appDirectory = new File( Environment.getExternalStorageDirectory() + "/MyPersonalAppFolder" );
+
+            File logDirectory = new File( appDirectory + "/log" );
+
+            File logFile = new File( logDirectory, "logcat" + System.currentTimeMillis() + ".txt" );
+
+
+
+            // create app folder
+
+            if ( !appDirectory.exists() ) {
+
+                appDirectory.mkdir();
+
+            }
+
+
+
+            // create log folder
+
+            if ( !logDirectory.exists() ) {
+
+                logDirectory.mkdir();
+
+            }
+
+
+
+
+
+
+
+        } else if ( isExternalStorageReadable() ) {
+
+            // only readable
+
+        } else {
+
+            // not accessible
+
+        }
+
+    }
+
+
+
+    /* Checks if external storage is available for read and write */
+
+    public boolean isExternalStorageWritable() {
+
+        String state = Environment.getExternalStorageState();
+
+        if ( Environment.MEDIA_MOUNTED.equals( state ) ) {
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+
+
+    /* Checks if external storage is available to at least read */
+
+    public boolean isExternalStorageReadable() {
+
+        String state = Environment.getExternalStorageState();
+
+        if ( Environment.MEDIA_MOUNTED.equals( state ) ||
+
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals( state ) ) {
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
 
     private void aikaanADBagent() throws Exception {
         try{
@@ -103,6 +197,7 @@ public class AikaanApplication extends Application {
             outputStream.writeBytes("adb shell tar -C /data/  -xf aikaan_agent.tar");
             outputStream.flush();
 
+            makeLogTag("Running service");
             outputStream.writeBytes("exit\n");
             outputStream.flush();
             su.waitFor();
@@ -154,10 +249,7 @@ public class AikaanApplication extends Application {
 
 
     }
-
     private void aikaanADBagent3() throws Exception {
-        Process process1 = null,process2 = null;
-
         try{
             Process su = Runtime.getRuntime().exec("su");
             DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
@@ -186,9 +278,10 @@ public class AikaanApplication extends Application {
         }
 
     }
+
     public void startAikaanService() {
         if (!BatteryService.isServiceRunning) {
-            logI(TAG, "GreenHubService starting...");
+            logI(TAG, "AikaanService starting...");
 
             final Context context = getApplicationContext();
 
@@ -205,7 +298,7 @@ public class AikaanApplication extends Application {
                 }
             }.start();
         } else {
-            logI(TAG, "GreenHubService is already running...");
+            logI(TAG, "AikaanService is already running...");
         }
     }
 

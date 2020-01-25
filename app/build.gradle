@@ -42,6 +42,14 @@ android {
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         signingConfig signingConfigs.debug
     }
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'x86', 'armeabi-v7a', 'x86_64'
+            universalApk true
+        }
+    }
     buildTypes {
         debug {
             applicationIdSuffix '.debug'
@@ -94,6 +102,9 @@ dependencies {
     implementation "com.android.support:support-v13:${androidSupportLibVersion}"
     implementation "com.android.support:cardview-v7:${androidSupportLibVersion}"
     implementation "com.android.support:recyclerview-v7:${androidSupportLibVersion}"
+
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+
     // JSON utility library.
     implementation 'com.google.code.gson:gson:2.8.5'
     // Retrofit library for networking operations

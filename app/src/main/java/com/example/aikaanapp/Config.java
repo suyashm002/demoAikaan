@@ -59,7 +59,7 @@ public final class Config {
     public static final int STARTER_MESSAGE_ID = 0;
 
     public static final int STARTUP_CURRENT_INTERVAL = 2000;
-    public static final int REFRESH_CURRENT_INTERVAL = 5000;
+    public static final int REFRESH_CURRENT_INTERVAL = 3000;
     public static final int REFRESH_MEMORY_INTERVAL = 10000;
     public static final int REFRESH_STATUS_BAR_INTERVAL = REFRESH_CURRENT_INTERVAL * 6;
     public static final int REFRESH_STATUS_ERROR = REFRESH_CURRENT_INTERVAL * 2;
@@ -72,6 +72,8 @@ public final class Config {
     public static final int PERMISSION_READ_PHONE_STATE = 1;
     public static final int PERMISSION_ACCESS_COARSE_LOCATION = 2;
     public static final int PERMISSION_ACCESS_FINE_LOCATION = 3;
+    public static final int PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE = 3;
+
 
     public static final String NOTIFICATION_DEFAULT_PRIORITY = "0";
     public static final int NOTIFICATION_BATTERY_STATUS = 1001;

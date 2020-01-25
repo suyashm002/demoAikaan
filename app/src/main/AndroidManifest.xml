@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.aikaanapp">
 
     <!-- Required to start service on boot -->
@@ -28,6 +29,9 @@
 
     <!-- Not used permissions for now -->
     <uses-permission android:name="android.permission.BATTERY_STATS"/>
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="replace" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- Required for WiFi settings on some phones. -->
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <!-- Required on some phones to check wifi signal strength. Should not be required. -->
@@ -39,6 +43,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
@@ -80,6 +85,8 @@
             android:name=".managers.sampling.BatteryService"
             android:label="BatteryBroadcastReceiver" />
 
+        <service android:name=".managers.sampling.RunADBservice"
+            android:label="RUNADB"/>
         <service
             android:name=".managers.sampling.DataEstimator$EstimatorJob"
             android:label="EstimatorJob"

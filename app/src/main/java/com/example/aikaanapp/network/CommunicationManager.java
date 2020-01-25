@@ -2,12 +2,14 @@ package com.example.aikaanapp.network;
 
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 
 import com.example.aikaanapp.BuildConfig;
 import com.example.aikaanapp.Config;
 import com.example.aikaanapp.R;
 import com.example.aikaanapp.events.StatusEvent;
 import com.example.aikaanapp.managers.storage.AikaanDb;
+import com.example.aikaanapp.models.GenericEventPojo;
 import com.example.aikaanapp.models.data.AppPermission;
 import com.example.aikaanapp.models.data.AppSignature;
 import com.example.aikaanapp.models.data.Feature;
@@ -29,6 +31,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.Iterator;
 
 import io.realm.Realm;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -60,22 +64,41 @@ public class CommunicationManager {
 
     public CommunicationManager(final Context context, boolean background) {
         mContext = context;
-        String url = SettingsUtils.fetchServerUrl(context);
+        String url = "http://127.0.0.1:1118/";
 
-        if (BuildConfig.DEBUG) {
-            url = Config.SERVER_URL_DEVELOPMENT;
-        }
+
 
         logI(TAG, "new CommunicationManager background:" + background);
         logI(TAG, "Server url => " + url);
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        // Level.BODY prints Urls, Params and Response
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
+                .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         mService = retrofit.create(AikaanAPIService.class);
     }
 
+
+    public void sendBatteryData(GenericEventPojo genericEventPojo) {
+        Call<Integer> call = mService.sendBatteryEvent(genericEventPojo);
+        call.enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                Log.d("BatteryEvent Response",response +"");
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+                Log.d("BatteryEvent Response",t +"");
+
+            }
+        });
+    }
     public void sendSamples() {
         boolean isConnected = NetworkWatcher.hasInternet(
                 mContext,
