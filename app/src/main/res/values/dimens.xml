@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <!-- standard metrics -->
+    <dimen name="spacing_double">16dp</dimen>
+    <dimen name="spacing_normal">8dp</dimen>
+    <dimen name="spacing_micro">4dp</dimen>
+    <dimen name="padding_normal">16dp</dimen>
+
+    <!-- line spacing -->
+    <item name="body_1_spacing" format="float" type="dimen">1.2</item>
+
+    <dimen name="card_elevation">2dp</dimen>
+
+    <dimen name="card_corner_radius">2dp</dimen>
+
+    <!-- per https://developer.android.com/reference/android/view/ViewGroup.LayoutParams.html#MATCH_PARENT -->
+    <item name="match_parent" format="integer" type="dimen">-1</item>
+
+    <!-- Welcome Activity -->
+    <dimen name="welcome_appbar_height">224dp</dimen> <!-- 4 * ?actionBarSize -->
+    <dimen name="welcome_image_width">200dp</dimen>
+    <dimen name="welcome_image_height">80dp</dimen>
+    <dimen name="welcome_content_padding_top">168dp</dimen> <!-- 3 * ?actionBarSize -->
+    <dimen name="welcome_content_padding">@dimen/padding_normal</dimen>
+    <dimen name="welcome_button_bar_elevation">6dp</dimen>
+    <dimen name="welcome_content_width">@dimen/match_parent</dimen>
+    <dimen name="welcome_title_size">20sp</dimen>
+
+    <!-- Device Fragment -->
+    <dimen name="list_item_margin_extra">42dp</dimen>
+    <dimen name="list_item_margin">36dp</dimen>
+    <dimen name="list_sub_item_margin">24dp</dimen>
+
+    <!-- Process List -->
+    <dimen name="list_item_details_margin">8dp</dimen>
+    <dimen name="two_line_height">72dp</dimen>
+    <dimen name="two_line_dense_height">60dp</dimen>
+    <dimen name="list_item_left_padding">64dp</dimen>
+    <dimen name="image_thumbnail_size">48dp</dimen>
+</resources>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+ <androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardUseCompatPadding="true"
+    android:id="@+id/cv"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_normal"
+            android:text="@string/memory_card_title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textStyle="normal|bold"/>
+
+        <include layout="@layout/item_divider"/>
+
+        <!-- RAM -->
+        <RelativeLayout
+            android:id="@+id/details_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:paddingTop="@dimen/padding_normal"
+            android:paddingLeft="@dimen/padding_normal"
+            android:paddingRight="@dimen/padding_normal">
+
+            <ImageView
+                android:id="@+id/memoryIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+              />
+
+            <ProgressBar
+                android:id="@+id/memoryBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="false"
+                android:progress="50"
+                android:max="100"
+                android:secondaryProgress="100"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                 android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="@dimen/list_item_margin"
+                android:layout_marginStart="@dimen/list_item_margin" />
+
+            <TextView
+                android:id="@+id/memoryUsedLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/memory_card_used"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="24dp"
+                android:layout_marginLeft="@dimen/list_item_margin"
+                android:layout_marginStart="@dimen/list_item_margin" />
+
+            <TextView
+                android:id="@+id/memoryUsed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/card_no_value_dash"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:layout_marginTop="@dimen/list_sub_item_margin"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+            <TextView
+                android:id="@+id/memoryFreeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/memory_card_available"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:layout_below="@id/memoryUsed"
+                android:layout_marginTop="@dimen/spacing_micro"
+                android:layout_marginLeft="@dimen/list_item_margin"
+                android:layout_marginStart="@dimen/list_item_margin" />
+
+            <TextView
+                android:id="@+id/memoryFree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/card_no_value_dash"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:layout_below="@id/memoryUsed"
+                android:layout_marginTop="@dimen/spacing_micro"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/buttonViewMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_micro"
+                android:text="@string/card_view_more"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

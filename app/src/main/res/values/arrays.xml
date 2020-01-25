@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string-array name="history_titles">
+        <item>"Last 5 days"</item>
+        <item>"Last 10 days"</item>
+        <item>"Last 15 days"</item>
+    </string-array>
+    <string-array name="history_values">
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="upload_rate_titles">
+        <item>"Low"</item>
+        <item>"Normal"</item>
+        <item>"High"</item>
+    </string-array>
+    <string-array name="upload_rate_values">
+        <item>50</item>
+        <item>20</item>
+        <item>10</item>
+    </string-array>
+
+    <string-array name="temperature_rate_titles">
+        <item>"2 minutes"</item>
+        <item>"5 minutes"</item>
+        <item>"10 minutes"</item>
+        <item>"20 minutes"</item>
+        <item>"30 minutes"</item>
+    </string-array>
+    <string-array name="temperature_rate_values">
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+    </string-array>
+
+    <string-array name="priority_titles">
+        <item>"Minimum"</item>
+        <item>"Low"</item>
+        <item>"Default"</item>
+        <item>"High"</item>
+        <item>"Max"</item>
+    </string-array>
+    <string-array name="priority_values">
+        <item>-2</item>
+        <item>-1</item>
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+</resources>
